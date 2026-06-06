@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Contractor's Dashboard | ZAR Expense Tracker</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', 'Inter', 'Roboto', sans-serif;
+    }
+
+    body {
+      background: #e9eef3;
+      padding: 24px 20px;
+    }
+
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .dashboard-header,
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1e2b3c, #0f3b2c);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1e2f3a;
+      border-left: 5px solid #2c7a4d;
+      padding-left: 14px;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    button {
+      background: #2c7a4d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 40px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.85rem;
+    }
+
+    button:hover {
+      background: #1e5f3a;
+      transform: scale(0.97);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #bdc4cc;
+      color: #2c3e44;
+    }
+
+    .btn-outline:hover {
+      background: #f0f2f5;
+      transform: none;
+    }
+
+    .btn-danger {
+      background: #b91c1c;
+    }
+
+    .btn-danger:hover {
+      background: #991b1b;
+    }
+
+    .btn-sm {
+      padding: 5px 12px;
+      font-size: 0.75rem;
+    }
+
+    .btn-warning {
+      background: #e67e22;
+    }
+
+    .btn-warning:hover {
+      background: #d35400;
+    }
+
+    .project-tile {
+      background: white;
+      border-radius: 28px;
+      padding: 1.2rem 1.5rem;
+      min-width: 220px;
+      flex: 1 1 240px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e2e8f0;
+    }
+
+    .project-tile h4 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .total-cost {
+      font-weight: 700;
+      font-size: 1.3rem;
+      color: #0f5c3a;
+      margin: 12px 0;
+    }
+
+    .finished-badge {
+      background: #2c7a4d20;
+      color: #1e5f3a;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .place-card {
+      background: #f9fafb;
+      border-radius: 20px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-left: 5px solid #2c7a4d;
+      transition: all 0.2s;
+    }
+
+    .place-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      cursor: pointer;
+      padding: 4px 0;
+    }
+
+    .place-header h3 {
+      margin-bottom: 0;
+    }
+
+    .collapse-icon {
+      font-size: 0.8rem;
+      margin-left: 8px;
+      color: #666;
+    }
+
+    .place-content {
+      margin-top: 1rem;
+      display: none;
+    }
+
+    .place-content.expanded {
+      display: block;
+    }
+
+    .date-group {
+      background: white;
+      border-radius: 18px;
+      margin: 1rem 0;
+      padding: 1rem;
+      border: 1px solid #e2edf2;
+    }
+
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      margin: 8px 0;
+      padding: 10px 12px;
+      border-radius: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+      border: 1px solid #eef2f6;
+    }
+
+    .price {
+      font-weight: 700;
+      color: #1f5e3a;
+    }
+
+    .inline-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 12px 0 8px;
+    }
+
+    input,
+    select {
+      padding: 8px 12px;
+      border-radius: 32px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.85rem;
+    }
+
+    .flex-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .back-link {
+      background: #eef2f6;
+      padding: 6px 14px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .summary-bar {
+      background: #eef7ef;
+      padding: 16px;
+      border-radius: 28px;
+      margin: 16px 0;
+    }
+
+    .project-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-top: 1rem;
+    }
+
+    .total-big {
+      background: #eef7ef;
+      padding: 12px 18px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 1.3rem;
+      display: inline-block;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+      }
+
+      .card {
+        padding: 1rem;
+      }
+
+      .project-tile {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container" id="appRoot">
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboardView" class="card">
+      <div class="dashboard-header">
+        <h1>🛠️ Contractor's Dashboard (ZAR)</h1>
+      </div>
+      <div style="margin-bottom: 28px;">
+        <h2>➕ New project</h2>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <input type="text" id="newProjectName" placeholder="Project name, e.g., 'River Side Renovation'" style="flex: 2;">
+          <button id="addProjectBtn">➕ Create Project</button>
+        </div>
+      </div>
+      <h2>📁 Active Projects</h2>
+      <div id="projectsList" class="project-grid"></div>
+    </div>
+
+    <!-- PROJECT DETAIL VIEW -->
+    <div id="projectView" style="display: none;" class="card">
+      <div class="flex-between" style="margin-bottom: 1rem;">
+        <span class="back-link" id="backToDashboardBtn">← Back to Dashboard</span>
+        <button id="deleteEntireProjectBtn" class="btn-danger btn-sm">🗑️ Delete Project</button>
+      </div>
+      <div id="projectHeaderInfo">
+        <div class="flex-between">
+          <h1 id="projectDetailName"></h1>
+          <button id="toggleFinishedBtn" class="btn-sm"></button>
+        </div>
+        <div class="summary-bar" id="projectSummary"></div>
+        <div id="projectTotalExpenses" class="total-big" style="font-size:1.5rem; margin-bottom:1rem;"></div>
+      </div>
+
+      <div style="background: #f1f5f9; border-radius: 24px; padding: 1rem; margin-bottom: 2rem;">
+        <h3>💰 Add Expense </h3>
+        <div class="inline-form">
+          <input type="text" id="newPlaceName" placeholder="e.g., Materials, Wages, Subcontractor, Transport, Equipment Hire" style="flex: 2;">
+          <button id="addPlaceBtn">+ Add Expense Category</button>
+        </div></div>
+
+      <div id="placesContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    let projects = [];
+    let currentProjectId = null;
+    let placeExpandStates = {}; // Track expand/collapse state per place ID
+
+    function uid() { return Date.now() + '-' + Math.random().toString(36).substring(2, 8); }
+
+    function formatMoney(value) {
+      return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(value);
+    }
+
+    function saveToLocal() { localStorage.setItem('contractor_dashboard', JSON.stringify(projects)); }
+
+    function loadData() {
+        const stored = localStorage.getItem('contractor_dashboard');
+        if (stored) {
+          try {
+            projects = JSON.parse(stored);
+            // ... rest of the migration code stays the same ...
+          } catch (e) { projects = []; }
+        }
+
+        // 👇 REPLACE THE DEMO BLOCK BELOW WITH THIS:
+        if (!projects.length) {
+          // No demo project - start completely empty
+          projects = [];
+        }
+
+        saveToLocal();
+      }
+    function computeProjectTotal(project) {
+      let total = 0;
+      project.places?.forEach(p => p.dateGroups?.forEach(g => g.items?.forEach(i => total += i.price)));
+      return total;
+    }
+
+    function calculateDaysWorked(start, end) {
+      if (!start || !end) return null;
+      const s = new Date(start), e = new Date(end);
+      if (isNaN(s) || isNaN(e)) return null;
+      const diff = Math.ceil((e - s) / (1000 * 60 * 60 * 24));
+      return diff >= 0 ? diff + 1 : null;
+    }
+
+    function renderDashboard() {
+      const container = document.getElementById('projectsList');
+      if (!container) return;
+      if (!projects.length) { container.innerHTML = `<div class="warning-txt">✨ No projects yet. Create one! ✨</div>`; return; }
+      container.innerHTML = projects.map(proj => {
+        const total = computeProjectTotal(proj);
+        const finishedTag = proj.finished ? '<span class="finished-badge">✓ Finished</span>' : '<span class="finished-badge" style="background:#fef3c7;">⚙️ In Progress</span>';
+        return `
+        <div class="project-tile" data-project-id="${proj.id}">
+          <div class="flex-between"><h4>${escapeHtml(proj.name)}</h4>${finishedTag}</div>
+          <div class="total-cost">${formatMoney(total)}</div>
+          <div style="display: flex; gap: 8px; flex-wrap:wrap;">
+            <button class="view-project-btn" data-id="${proj.id}">🔍 Open</button>
+            <button class="remove-project-btn" data-id="${proj.id}" style="background:#c2410c;">🗑️ Remove</button>
+          </div>
+        </div>
+      `;
+      }).join('');
+      document.querySelectorAll('.view-project-btn').forEach(btn => btn.addEventListener('click', () => openProjectView(btn.getAttribute('data-id'))));
+      document.querySelectorAll('.remove-project-btn').forEach(btn => btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        if (confirm('Delete project?')) { projects = projects.filter(p => p.id !== id); saveToLocal(); renderDashboard(); if (currentProjectId === id) showDashboardView(); }
+      }));
+    }
+
+    function togglePlaceExpand(placeId) {
+      const content = document.querySelector(`.place-content[data-place-content="${placeId}"]`);
+      const icon = document.querySelector(`.collapse-icon[data-place-id="${placeId}"]`);
+      if (content) {
+        const isExpanded = content.classList.contains('expanded');
+        if (isExpanded) {
+          content.classList.remove('expanded');
+          content.style.display = 'none';
+          if (icon) icon.textContent = '▶';
+          placeExpandStates[placeId] = false;
+        } else {
+          content.classList.add('expanded');
+          content.style.display = 'block';
+          if (icon) icon.textContent = '▼';
+          placeExpandStates[placeId] = true;
+        }
+      }
+    }
+
+    function renderProjectView(projectId) {
+      const project = projects.find(p => p.id === projectId);
+      if (!project) return showDashboardView();
+      currentProjectId = projectId;
+      document.getElementById('projectDetailName').innerHTML = `📋 ${escapeHtml(project.name)}`;
+      document.getElementById('projectTotalExpenses').innerHTML = formatMoney(computeProjectTotal(project));
+      const finishedBtn = document.getElementById('toggleFinishedBtn');
+      finishedBtn.textContent = project.finished ? '✅ Mark as In Progress' : '🏁 Mark as Finished';
+      finishedBtn.onclick = () => { project.finished = !project.finished; saveToLocal(); renderProjectView(projectId); };
+
+      // Summary with days worked
+      const days = calculateDaysWorked(project.startDate, project.endDate);
+      let summaryHtml = `<div class="flex-between"><span>📅 Start Date:</span><input type="date" id="startDatePicker" value="${project.startDate || ''}" style="width:auto;"></div>
+                       <div class="flex-between" style="margin-top:8px;"><span>🏁 End Date:</span><input type="date" id="endDatePicker" value="${project.endDate || ''}" style="width:auto;"></div>`;
+      if (days !== null) summaryHtml += `<div style="margin-top:12px;"><strong>📆 Total days worked:</strong> ${days} day${days !== 1 ? 's' : ''}</div>`;
+      else if (project.startDate || project.endDate) summaryHtml += `<div style="margin-top:12px;">⚠️ Invalid date range</div>`;
+      document.getElementById('projectSummary').innerHTML = summaryHtml;
+      document.getElementById('startDatePicker')?.addEventListener('change', (e) => { project.startDate = e.target.value; saveToLocal(); renderProjectView(projectId); });
+      document.getElementById('endDatePicker')?.addEventListener('change', (e) => { project.endDate = e.target.value; saveToLocal(); renderProjectView(projectId); });
+
+      const container = document.getElementById('placesContainer');
+      if (!project.places?.length) { container.innerHTML = `<div class="warning-txt">➕ Add a place to start tracking expenses</div>`; return; }
+
+      container.innerHTML = project.places.map(place => {
+        const isExpanded = placeExpandStates[place.id] !== undefined ? placeExpandStates[place.id] : false;
+        const iconSymbol = isExpanded ? '▼' : '▶';
+        return `
+        <div class="place-card" data-place-id="${place.id}">
+          <div class="place-header" data-place-id="${place.id}" data-toggle-place="${place.id}">
+            <h3>📂 ${escapeHtml(place.name)} <span class="collapse-icon" data-place-id="${place.id}">${iconSymbol}</span></h3>
+            <button class="remove-place-btn btn-sm btn-outline" data-place-id="${place.id}">Remove Place</button>
+          </div>
+          <div class="place-content" data-place-content="${place.id}" style="display: ${isExpanded ? 'block' : 'none'};">
+            <div class="inline-form"><input type="date" id="newDate_${place.id}" value="${new Date().toISOString().slice(0, 10)}"><button class="add-date-group-btn" data-place-id="${place.id}">📆 + Date Section</button></div>
+            <div id="dateGroups_${place.id}">${renderDateGroups(place, projectId)}</div>
+          </div>
+        </div>
+      `;
+      }).join('');
+
+      // Attach expand/collapse handlers
+      project.places.forEach(place => {
+        const header = document.querySelector(`.place-header[data-place-id="${place.id}"]`);
+        if (header) {
+          header.addEventListener('click', (e) => {
+            // Don't toggle if clicking on the remove button
+            if (e.target.classList && e.target.classList.contains('remove-place-btn')) return;
+            togglePlaceExpand(place.id);
+          });
+        }
+        // Ensure the content has the correct class based on stored state
+        const contentDiv = document.querySelector(`.place-content[data-place-content="${place.id}"]`);
+        if (contentDiv) {
+          const isExpanded = placeExpandStates[place.id] === true;
+          if (isExpanded) {
+            contentDiv.classList.add('expanded');
+            contentDiv.style.display = 'block';
+          } else {
+            contentDiv.classList.remove('expanded');
+            contentDiv.style.display = 'none';
+          }
+        }
+      });
+    }
+
+    function renderDateGroups(place, projectId) {
+      if (!place.dateGroups?.length) return '<div class="warning-txt">No date entries yet. Add a date section.</div>';
+      return place.dateGroups.map(group => {
+        const groupTotal = group.items.reduce((s, i) => s + i.price, 0);
+        return `
+        <div class="date-group" data-group-id="${group.id}">
+          <div class="date-header flex-between"><strong>📅 ${group.date}</strong><span class="price">Subtotal: ${formatMoney(groupTotal)}</span><button class="remove-date-group-btn btn-sm btn-danger" data-place-id="${place.id}" data-group-id="${group.id}">Delete Date</button></div>
+          <div>${group.items.map(item => `
+            <div class="item-row" data-item-id="${item.id}">
+              <div><strong>${escapeHtml(item.description)}</strong> <span class="price">${formatMoney(item.price)}</span></div>
+              <div><button class="edit-item-btn btn-sm btn-warning" data-place-id="${place.id}" data-group-id="${group.id}" data-item-id="${item.id}" data-desc="${escapeHtml(item.description)}" data-price="${item.price}">✏️ Edit</button>
+              <button class="remove-item-btn btn-sm btn-outline" data-place-id="${place.id}" data-group-id="${group.id}" data-item-id="${item.id}">🗑️ Remove</button></div>
+            </div>
+          `).join('') || '<div class="warning-txt">No items yet</div>'}</div>
+          <div class="inline-form"><input type="text" id="itemDesc_${group.id}" placeholder="Item name"><input type="number" step="0.01" id="itemPrice_${group.id}" placeholder="Price (ZAR)"><button class="add-item-to-group-btn" data-place-id="${place.id}" data-group-id="${group.id}">+ Add Item</button></div>
+        </div>
+      `;
+      }).join('');
+    }
+
+    function showDashboardView() { document.getElementById('dashboardView').style.display = 'block'; document.getElementById('projectView').style.display = 'none'; renderDashboard(); currentProjectId = null; }
+    function openProjectView(id) {
+      if (projects.find(p => p.id === id)) {
+        currentProjectId = id;
+        // Reset expand states for this project
+        const project = projects.find(p => p.id === id);
+        if (project && project.places) {
+          project.places.forEach(place => {
+            if (placeExpandStates[place.id] === undefined) {
+              placeExpandStates[place.id] = false; // All collapsed by default
+            }
+          });
+        }
+        document.getElementById('dashboardView').style.display = 'none';
+        document.getElementById('projectView').style.display = 'block';
+        renderProjectView(id);
+      }
+    }
+
+    function setupEventDelegation() {
+      document.body.addEventListener('click', (e) => {
+        if (e.target.id === 'addPlaceBtn') {
+          const name = document.getElementById('newPlaceName')?.value.trim();
+          if (!name) return alert('Enter place name');
+          const proj = projects.find(p => p.id === currentProjectId);
+          if (proj) {
+            const newPlaceId = uid();
+            proj.places.push({ id: newPlaceId, name, dateGroups: [] });
+            placeExpandStates[newPlaceId] = false; // New places start collapsed
+            saveToLocal();
+            renderProjectView(currentProjectId);
+            document.getElementById('newPlaceName').value = '';
+          }
+        }
+        if (e.target.classList?.contains('remove-place-btn')) {
+          e.stopPropagation();
+          const pid = e.target.getAttribute('data-place-id');
+          const proj = projects.find(p => p.id === currentProjectId);
+          if (proj) {
+            delete placeExpandStates[pid];
+            proj.places = proj.places.filter(p => p.id !== pid);
+            saveToLocal();
+            renderProjectView(currentProjectId);
+          }
+        }
+        if (e.target.classList?.contains('add-date-group-btn')) {
+          const placeId = e.target.getAttribute('data-place-id');
+          const dateInput = document.getElementById(`newDate_${placeId}`);
+          const dateVal = dateInput?.value || new Date().toISOString().slice(0, 10);
+          const proj = projects.find(p => p.id === currentProjectId);
+          const place = proj?.places?.find(p => p.id === placeId);
+          if (place) { place.dateGroups.push({ id: uid(), date: dateVal, items: [] }); saveToLocal(); renderProjectView(currentProjectId); }
+        }
+        if (e.target.classList?.contains('remove-date-group-btn')) {
+          const placeId = e.target.getAttribute('data-place-id'), groupId = e.target.getAttribute('data-group-id');
+          const proj = projects.find(p => p.id === currentProjectId);
+          const place = proj?.places?.find(p => p.id === placeId);
+          if (place) { place.dateGroups = place.dateGroups.filter(g => g.id !== groupId); saveToLocal(); renderProjectView(currentProjectId); }
+        }
+        if (e.target.classList?.contains('add-item-to-group-btn')) {
+          const placeId = e.target.getAttribute('data-place-id'), groupId = e.target.getAttribute('data-group-id');
+          const desc = document.getElementById(`itemDesc_${groupId}`)?.value.trim();
+          const price = parseFloat(document.getElementById(`itemPrice_${groupId}`)?.value);
+          if (!desc) return alert('Item description');
+          if (isNaN(price)) return alert('Valid price');
+          const proj = projects.find(p => p.id === currentProjectId);
+          const group = proj?.places?.find(p => p.id === placeId)?.dateGroups?.find(g => g.id === groupId);
+          if (group) { group.items.push({ id: uid(), description: desc, price }); saveToLocal(); renderProjectView(currentProjectId); }
+        }
+        if (e.target.classList?.contains('remove-item-btn')) {
+          const placeId = e.target.getAttribute('data-place-id'), groupId = e.target.getAttribute('data-group-id'), itemId = e.target.getAttribute('data-item-id');
+          const proj = projects.find(p => p.id === currentProjectId);
+          const group = proj?.places?.find(p => p.id === placeId)?.dateGroups?.find(g => g.id === groupId);
+          if (group) { group.items = group.items.filter(i => i.id !== itemId); saveToLocal(); renderProjectView(currentProjectId); }
+        }
+        if (e.target.classList?.contains('edit-item-btn')) {
+          const placeId = e.target.getAttribute('data-place-id'), groupId = e.target.getAttribute('data-group-id'), itemId = e.target.getAttribute('data-item-id');
+          const oldDesc = e.target.getAttribute('data-desc'), oldPrice = e.target.getAttribute('data-price');
+          const newDesc = prompt('Edit item description:', oldDesc);
+          if (newDesc === null) return;
+          const newPrice = parseFloat(prompt('Edit price (ZAR):', oldPrice));
+          if (isNaN(newPrice)) return alert('Invalid price');
+          const proj = projects.find(p => p.id === currentProjectId);
+          const item = proj?.places?.find(p => p.id === placeId)?.dateGroups?.find(g => g.id === groupId)?.items?.find(i => i.id === itemId);
+          if (item) { item.description = newDesc; item.price = newPrice; saveToLocal(); renderProjectView(currentProjectId); }
+        }
+      });
+    }
+
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function (m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+
+    function init() {
+      loadData();
+      setupEventDelegation();
+      document.getElementById('addProjectBtn')?.addEventListener('click', () => {
+        const name = document.getElementById('newProjectName')?.value.trim();
+        if (name) {
+          projects.push({ id: uid(), name, finished: false, startDate: '', endDate: '', places: [] });
+          saveToLocal();
+          renderDashboard();
+          document.getElementById('newProjectName').value = '';
+        } else alert('Enter project name');
+      });
+      document.getElementById('backToDashboardBtn')?.addEventListener('click', showDashboardView);
+      document.getElementById('deleteEntireProjectBtn')?.addEventListener('click', () => {
+        if (currentProjectId && confirm('Delete entire project?')) {
+          // Clean up expand states for this project
+          const project = projects.find(p => p.id === currentProjectId);
+          if (project && project.places) {
+            project.places.forEach(place => delete placeExpandStates[place.id]);
+          }
+          projects = projects.filter(p => p.id !== currentProjectId);
+          saveToLocal();
+          showDashboardView();
+        }
+      });
+      showDashboardView();
+    }
+    init();
+  </script>
+</body>
+
+</html>
