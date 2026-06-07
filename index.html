@@ -111,11 +111,12 @@
       font-size: 0.7rem;
     }
 
-    .btn-warning {
+    .btn-edit {
       background: #e67e22;
+      color: white;
     }
 
-    .btn-warning:hover {
+    .btn-edit:hover {
       background: #d35400;
     }
 
@@ -299,6 +300,10 @@
       .card {
         padding: 1rem;
       }
+
+      .item-actions {
+        margin-top: 6px;
+      }
     }
   </style>
 </head>
@@ -340,9 +345,9 @@
         <!-- TABS -->
         <div class="tab-bar">
           <button class="tab-btn active" data-tab="expenses">💰 Expenses</button>
-          <button class="tab-btn" data-tab="workers">👷 Workers & Advances</button>
-          <button class="tab-btn" data-tab="clients">🏢 Clients & Payments</button>
-          <button class="tab-btn" data-tab="tasks">✓ Task Checklist</button>
+          <button class="tab-btn" data-tab="workers">👷 Workers</button>
+          <button class="tab-btn" data-tab="clients">🏢 Clients</button>
+          <button class="tab-btn" data-tab="tasks">✓ Tasks</button>
           <button class="tab-btn" data-tab="logs">📝 Daily Logs</button>
           <button class="tab-btn" data-tab="notes">📋 Notes</button>
           <button class="tab-btn" data-tab="docs">📎 Documents</button>
@@ -431,7 +436,7 @@
           <div id="logsList"></div>
         </div>
 
-        <!-- NOTES TAB (Collapsible notes) -->
+        <!-- NOTES TAB -->
         <div id="tab-notes" class="tab-content">
           <div style="background: #f1f5f9; border-radius: 20px; padding: 1rem; margin-bottom: 1rem;">
             <h3>📝 Add New Note</h3>
@@ -444,7 +449,7 @@
           <div id="notesList"></div>
         </div>
 
-        <!-- DOCUMENTS TAB (Clickable links) -->
+        <!-- DOCUMENTS TAB -->
         <div id="tab-docs" class="tab-content">
           <div style="background: #f1f5f9; border-radius: 20px; padding: 1rem; margin-bottom: 1rem;">
             <h3>📎 Add Document Link</h3>
@@ -512,7 +517,7 @@
       </div>`;
       }).join('');
       document.querySelectorAll('.view-project-btn').forEach(btn => btn.addEventListener('click', () => openProject(btn.dataset.id)));
-      document.querySelectorAll('.remove-project-btn').forEach(btn => btn.addEventListener('click', () => { if (confirm('Delete?')) { projects = projects.filter(p => p.id !== btn.dataset.id); save(); renderDashboard(); if (currentProjectId === btn.dataset.id) showDashboard(); } }));
+      document.querySelectorAll('.remove-project-btn').forEach(btn => btn.addEventListener('click', () => { if (confirm('Delete project? This cannot be undone.')) { projects = projects.filter(p => p.id !== btn.dataset.id); save(); renderDashboard(); if (currentProjectId === btn.dataset.id) showDashboard(); } }));
     }
 
     function toggleNoteExpand(noteId) {
@@ -558,33 +563,15 @@
       renderPayments(proj);
     }
 
-    function renderExpenses(proj) {
-      let html = '';
-      const search = document.getElementById('expenseSearch')?.value.toLowerCase() || '';
-      const filtered = proj.expenses?.filter(e => e.category?.toLowerCase().includes(search) || e.desc?.toLowerCase().includes(search)) || [];
-      filtered.forEach(exp => {
-        html += `<div class="item-row">
-        <div><strong>${escapeHtml(exp.category)}</strong>: ${escapeHtml(exp.desc)}<br><small>${exp.qty} x ${formatMoney(exp.price)} = ${formatMoney(exp.qty * exp.price)} | ${exp.supplier ? '📦 ' + escapeHtml(exp.supplier) : ''}</small></div>
-        <div class="item-actions">
-          <button class="edit-expense-btn btn-sm btn-warning" data-id="${exp.id}">✏️</button>
-          <button class="delete-expense-btn btn-sm btn-outline" data-id="${exp.id}">✖</button>
-        </div>
-      </div>`;
-      });
-      if (!filtered.length) html = '<div class="badge">No expenses yet.</div>';
-      document.getElementById('expensesList').innerHTML = html;
-      document.querySelectorAll('.edit-expense-btn').forEach(btn => btn.addEventListener('click', () => editExpense(proj, btn.dataset.id)));
-      document.querySelectorAll('.delete-expense-btn').forEach(btn => btn.addEventListener('click', () => { proj.expenses = proj.expenses.filter(e => e.id !== btn.dataset.id); save(); renderProjectView(proj.id); }));
-    }
-
+    // EDIT FUNCTIONS - each opens a prompt for easy editing
     function editExpense(proj, expId) {
       const exp = proj.expenses.find(e => e.id === expId);
       if (!exp) return;
-      const newCat = prompt('Edit category:', exp.category);
-      const newDesc = prompt('Edit description:', exp.desc);
-      const newQty = parseFloat(prompt('Edit quantity:', exp.qty));
-      const newPrice = parseFloat(prompt('Edit price each:', exp.price));
-      const newSupplier = prompt('Edit supplier:', exp.supplier || '');
+      const newCat = prompt('✏️ Edit category:', exp.category);
+      const newDesc = prompt('✏️ Edit description:', exp.desc);
+      const newQty = parseFloat(prompt('✏️ Edit quantity:', exp.qty));
+      const newPrice = parseFloat(prompt('✏️ Edit price each (ZAR):', exp.price));
+      const newSupplier = prompt('✏️ Edit supplier:', exp.supplier || '');
       if (newCat) exp.category = newCat;
       if (newDesc) exp.desc = newDesc;
       if (!isNaN(newQty) && newQty > 0) exp.qty = newQty;
@@ -596,9 +583,9 @@
     function editWorker(proj, workerId) {
       const worker = proj.workers.find(w => w.id === workerId);
       if (!worker) return;
-      const newName = prompt('Edit worker name:', worker.name);
-      const newRole = prompt('Edit role:', worker.role);
-      const newRate = parseFloat(prompt('Edit hourly rate (ZAR):', worker.rate));
+      const newName = prompt('✏️ Edit worker name:', worker.name);
+      const newRole = prompt('✏️ Edit role:', worker.role);
+      const newRate = parseFloat(prompt('✏️ Edit hourly rate (ZAR):', worker.rate));
       if (newName) worker.name = newName;
       if (newRole) worker.role = newRole;
       if (!isNaN(newRate) && newRate > 0) worker.rate = newRate;
@@ -608,9 +595,9 @@
     function editClient(proj, clientId) {
       const client = proj.clients.find(c => c.id === clientId);
       if (!client) return;
-      const newName = prompt('Edit client name:', client.name);
-      const newContact = prompt('Edit contact:', client.contact);
-      const newAddress = prompt('Edit address:', client.address);
+      const newName = prompt('✏️ Edit client name:', client.name);
+      const newContact = prompt('✏️ Edit contact:', client.contact);
+      const newAddress = prompt('✏️ Edit address:', client.address);
       if (newName) client.name = newName;
       if (newContact !== null) client.contact = newContact;
       if (newAddress !== null) client.address = newAddress;
@@ -620,7 +607,7 @@
     function editTask(proj, taskId) {
       const task = proj.tasks.find(t => t.id === taskId);
       if (!task) return;
-      const newText = prompt('Edit task:', task.text);
+      const newText = prompt('✏️ Edit task:', task.text);
       if (newText) task.text = newText;
       save(); renderProjectView(proj.id);
     }
@@ -628,8 +615,8 @@
     function editLog(proj, logId) {
       const log = proj.dailyLogs.find(l => l.id === logId);
       if (!log) return;
-      const newDate = prompt('Edit date (YYYY-MM-DD):', log.date);
-      const newText = prompt('Edit log entry:', log.text);
+      const newDate = prompt('✏️ Edit date (YYYY-MM-DD):', log.date);
+      const newText = prompt('✏️ Edit log entry:', log.text);
       if (newDate) log.date = newDate;
       if (newText) log.text = newText;
       save(); renderProjectView(proj.id);
@@ -638,8 +625,8 @@
     function editNote(proj, noteId) {
       const note = proj.notes.find(n => n.id === noteId);
       if (!note) return;
-      const newTitle = prompt('Edit note title:', note.title);
-      const newContent = prompt('Edit note content:', note.content);
+      const newTitle = prompt('✏️ Edit note title:', note.title);
+      const newContent = prompt('✏️ Edit note content:', note.content);
       if (newTitle) note.title = newTitle;
       if (newContent !== null) note.content = newContent;
       save(); renderProjectView(proj.id);
@@ -648,8 +635,8 @@
     function editDocument(proj, docId) {
       const doc = proj.documents.find(d => d.id === docId);
       if (!doc) return;
-      const newTitle = prompt('Edit document title:', doc.title);
-      const newLink = prompt('Edit document link:', doc.link);
+      const newTitle = prompt('✏️ Edit document title:', doc.title);
+      const newLink = prompt('✏️ Edit document link:', doc.link);
       if (newTitle) doc.title = newTitle;
       if (newLink !== null) doc.link = newLink;
       save(); renderProjectView(proj.id);
@@ -658,11 +645,31 @@
     function editPayment(proj, paymentId) {
       const payment = proj.payments.find(p => p.id === paymentId);
       if (!payment) return;
-      const newAmount = parseFloat(prompt('Edit amount:', payment.amount));
-      const newDate = prompt('Edit date (YYYY-MM-DD):', payment.date);
+      const newAmount = parseFloat(prompt('✏️ Edit amount (ZAR):', payment.amount));
+      const newDate = prompt('✏️ Edit date (YYYY-MM-DD):', payment.date);
       if (!isNaN(newAmount) && newAmount > 0) payment.amount = newAmount;
       if (newDate) payment.date = newDate;
       save(); renderProjectView(proj.id);
+    }
+
+    // RENDER FUNCTIONS with visible EDIT buttons
+    function renderExpenses(proj) {
+      let html = '';
+      const search = document.getElementById('expenseSearch')?.value.toLowerCase() || '';
+      const filtered = proj.expenses?.filter(e => e.category?.toLowerCase().includes(search) || e.desc?.toLowerCase().includes(search)) || [];
+      filtered.forEach(exp => {
+        html += `<div class="item-row">
+        <div><strong>${escapeHtml(exp.category)}</strong>: ${escapeHtml(exp.desc)}<br><small>${exp.qty} x ${formatMoney(exp.price)} = ${formatMoney(exp.qty * exp.price)} | ${exp.supplier ? '📦 ' + escapeHtml(exp.supplier) : ''}</small></div>
+        <div class="item-actions">
+          <button class="edit-expense-btn btn-sm btn-edit" data-id="${exp.id}">✏️ EDIT</button>
+          <button class="delete-expense-btn btn-sm btn-outline" data-id="${exp.id}">🗑️ DELETE</button>
+        </div>
+      </div>`;
+      });
+      if (!filtered.length) html = '<div class="badge">No expenses yet. Add one above.</div>';
+      document.getElementById('expensesList').innerHTML = html;
+      document.querySelectorAll('.edit-expense-btn').forEach(btn => btn.addEventListener('click', () => editExpense(proj, btn.dataset.id)));
+      document.querySelectorAll('.delete-expense-btn').forEach(btn => btn.addEventListener('click', () => { if (confirm('Delete this expense?')) { proj.expenses = proj.expenses.filter(e => e.id !== btn.dataset.id); save(); renderProjectView(proj.id); } }));
     }
 
     function renderWorkers(proj) {
@@ -673,14 +680,14 @@
         <div><strong>${escapeHtml(w.name)}</strong> (${escapeHtml(w.role)}) - ${formatMoney(w.rate)}/hr</div>
         <div>📊 Hours: ${w.totalHours || 0} | 💵 Wages: ${formatMoney(w.totalHoursWage || 0)} | 💸 Advances: ${formatMoney(w.advances || 0)} | ⚖️ Balance: ${formatMoney(owed)}</div>
         <div class="item-actions" style="margin-top:8px;">
-          <button class="edit-worker-btn btn-sm btn-warning" data-id="${w.id}">✏️</button>
-          <button class="delete-worker-btn btn-sm btn-outline" data-id="${w.id}">Remove</button>
+          <button class="edit-worker-btn btn-sm btn-edit" data-id="${w.id}">✏️ EDIT</button>
+          <button class="delete-worker-btn btn-sm btn-outline" data-id="${w.id}">🗑️ DELETE</button>
         </div>
       </div>`;
       });
-      document.getElementById('workersList').innerHTML = html || '<div>No workers</div>';
+      document.getElementById('workersList').innerHTML = html || '<div class="badge">No workers added. Add one above.</div>';
       document.querySelectorAll('.edit-worker-btn').forEach(btn => btn.addEventListener('click', () => editWorker(proj, btn.dataset.id)));
-      document.querySelectorAll('.delete-worker-btn').forEach(btn => btn.addEventListener('click', () => { proj.workers = proj.workers.filter(w => w.id !== btn.dataset.id); save(); renderProjectView(proj.id); }));
+      document.querySelectorAll('.delete-worker-btn').forEach(btn => btn.addEventListener('click', () => { if (confirm('Delete this worker?')) { proj.workers = proj.workers.filter(w => w.id !== btn.dataset.id); save(); renderProjectView(proj.id); } }));
 
       const workerSelect = document.getElementById('advanceWorkerSelect');
       const hoursSelect = document.getElementById('hoursWorkerSelect');
@@ -696,14 +703,14 @@
         html += `<div class="client-card">
         <strong>${escapeHtml(c.name)}</strong><br>${escapeHtml(c.contact)}<br>${escapeHtml(c.address)}
         <div class="item-actions" style="margin-top:8px;">
-          <button class="edit-client-btn btn-sm btn-warning" data-id="${c.id}">✏️</button>
-          <button class="delete-client-btn btn-sm btn-outline" data-id="${c.id}">Remove</button>
+          <button class="edit-client-btn btn-sm btn-edit" data-id="${c.id}">✏️ EDIT</button>
+          <button class="delete-client-btn btn-sm btn-outline" data-id="${c.id}">🗑️ DELETE</button>
         </div>
       </div>`;
       });
-      document.getElementById('clientsList').innerHTML = html || '<div>No clients</div>';
+      document.getElementById('clientsList').innerHTML = html || '<div class="badge">No clients added. Add one above.</div>';
       document.querySelectorAll('.edit-client-btn').forEach(btn => btn.addEventListener('click', () => editClient(proj, btn.dataset.id)));
-      document.querySelectorAll('.delete-client-btn').forEach(btn => btn.addEventListener('click', () => { proj.clients = proj.clients.filter(c => c.id !== btn.dataset.id); save(); renderProjectView(proj.id); }));
+      document.querySelectorAll('.delete-client-btn').forEach(btn => btn.addEventListener('click', () => { if (confirm('Delete this client?')) { proj.clients = proj.clients.filter(c => c.id !== btn.dataset.id); save(); renderProjectView(proj.id); } }));
 
       const paymentSelect = document.getElementById('paymentClientSelect');
       if (paymentSelect && proj.clients) paymentSelect.innerHTML = '<option value="">Select client</option>' + proj.clients.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
@@ -716,15 +723,15 @@
         <input type="checkbox" ${t.completed ? 'checked' : ''} class="task-check" data-id="${t.id}">
         <span style="${t.completed ? 'text-decoration:line-through' : ''}">${escapeHtml(t.text)}</span>
         <div class="item-actions">
-          <button class="edit-task-btn btn-sm btn-warning" data-id="${t.id}">✏️</button>
-          <button class="delete-task-btn btn-sm btn-outline" data-id="${t.id}">🗑️</button>
+          <button class="edit-task-btn btn-sm btn-edit" data-id="${t.id}">✏️ EDIT</button>
+          <button class="delete-task-btn btn-sm btn-outline" data-id="${t.id}">🗑️ DELETE</button>
         </div>
       </div>`;
       });
-      document.getElementById('tasksList').innerHTML = html || '<div>No tasks</div>';
+      document.getElementById('tasksList').innerHTML = html || '<div class="badge">No tasks yet. Add one above.</div>';
       document.querySelectorAll('.task-check').forEach(cb => cb.addEventListener('change', (e) => { const task = proj.tasks.find(t => t.id === cb.dataset.id); if (task) { task.completed = cb.checked; save(); renderProjectView(proj.id); } }));
       document.querySelectorAll('.edit-task-btn').forEach(btn => btn.addEventListener('click', () => editTask(proj, btn.dataset.id)));
-      document.querySelectorAll('.delete-task-btn').forEach(btn => btn.addEventListener('click', () => { proj.tasks = proj.tasks.filter(t => t.id !== btn.dataset.id); save(); renderProjectView(proj.id); }));
+      document.querySelectorAll('.delete-task-btn').forEach(btn => btn.addEventListener('click', () => { if (confirm('Delete this task?')) { proj.tasks = proj.tasks.filter(t => t.id !== btn.dataset.id); save(); renderProjectView(proj.id); } }));
     }
 
     function renderLogs(proj) {
@@ -733,14 +740,14 @@
         html += `<div class="item-row">
         <div><strong>📅 ${l.date}</strong><br>${escapeHtml(l.text)}</div>
         <div class="item-actions">
-          <button class="edit-log-btn btn-sm btn-warning" data-id="${l.id}">✏️</button>
-          <button class="delete-log-btn btn-sm btn-outline" data-id="${l.id}">✖</button>
+          <button class="edit-log-btn btn-sm btn-edit" data-id="${l.id}">✏️ EDIT</button>
+          <button class="delete-log-btn btn-sm btn-outline" data-id="${l.id}">🗑️ DELETE</button>
         </div>
       </div>`;
       });
-      document.getElementById('logsList').innerHTML = html || '<div>No logs</div>';
+      document.getElementById('logsList').innerHTML = html || '<div class="badge">No logs yet. Add one above.</div>';
       document.querySelectorAll('.edit-log-btn').forEach(btn => btn.addEventListener('click', () => editLog(proj, btn.dataset.id)));
-      document.querySelectorAll('.delete-log-btn').forEach(btn => btn.addEventListener('click', () => { proj.dailyLogs = proj.dailyLogs.filter(l => l.id !== btn.dataset.id); save(); renderProjectView(proj.id); }));
+      document.querySelectorAll('.delete-log-btn').forEach(btn => btn.addEventListener('click', () => { if (confirm('Delete this log?')) { proj.dailyLogs = proj.dailyLogs.filter(l => l.id !== btn.dataset.id); save(); renderProjectView(proj.id); } }));
     }
 
     function renderNotes(proj) {
@@ -756,8 +763,8 @@
         <div class="collapsible-content note-content" data-note-id="${note.id}" style="display: ${isExpanded ? 'block' : 'none'};">
           <p style="margin-bottom:8px;">${escapeHtml(note.content)}</p>
           <div class="item-actions">
-            <button class="edit-note-btn btn-sm btn-warning" data-id="${note.id}">✏️ Edit</button>
-            <button class="delete-note-btn btn-sm btn-outline" data-id="${note.id}">Delete</button>
+            <button class="edit-note-btn btn-sm btn-edit" data-id="${note.id}">✏️ EDIT</button>
+            <button class="delete-note-btn btn-sm btn-outline" data-id="${note.id}">🗑️ DELETE</button>
           </div>
         </div>
       </div>`;
@@ -772,7 +779,7 @@
         });
       });
       document.querySelectorAll('.edit-note-btn').forEach(btn => btn.addEventListener('click', () => editNote(proj, btn.dataset.id)));
-      document.querySelectorAll('.delete-note-btn').forEach(btn => btn.addEventListener('click', () => { proj.notes = proj.notes.filter(n => n.id !== btn.dataset.id); delete noteExpandStates[btn.dataset.id]; save(); renderProjectView(proj.id); }));
+      document.querySelectorAll('.delete-note-btn').forEach(btn => btn.addEventListener('click', () => { if (confirm('Delete this note?')) { proj.notes = proj.notes.filter(n => n.id !== btn.dataset.id); delete noteExpandStates[btn.dataset.id]; save(); renderProjectView(proj.id); } }));
     }
 
     function renderDocuments(proj) {
@@ -782,14 +789,14 @@
         <div><strong>📄 ${escapeHtml(doc.title)}</strong></div>
         <div><a href="${escapeHtml(doc.link)}" target="_blank" class="doc-link">🔗 ${escapeHtml(doc.link)}</a></div>
         <div class="item-actions" style="margin-top:8px;">
-          <button class="edit-doc-btn btn-sm btn-warning" data-id="${doc.id}">✏️ Edit</button>
-          <button class="delete-doc-btn btn-sm btn-outline" data-id="${doc.id}">Delete</button>
+          <button class="edit-doc-btn btn-sm btn-edit" data-id="${doc.id}">✏️ EDIT</button>
+          <button class="delete-doc-btn btn-sm btn-outline" data-id="${doc.id}">🗑️ DELETE</button>
         </div>
       </div>`;
       });
       document.getElementById('docsList').innerHTML = html || '<div class="badge">No documents yet. Add a link above.</div>';
       document.querySelectorAll('.edit-doc-btn').forEach(btn => btn.addEventListener('click', () => editDocument(proj, btn.dataset.id)));
-      document.querySelectorAll('.delete-doc-btn').forEach(btn => btn.addEventListener('click', () => { proj.documents = proj.documents.filter(d => d.id !== btn.dataset.id); save(); renderProjectView(proj.id); }));
+      document.querySelectorAll('.delete-doc-btn').forEach(btn => btn.addEventListener('click', () => { if (confirm('Delete this document?')) { proj.documents = proj.documents.filter(d => d.id !== btn.dataset.id); save(); renderProjectView(proj.id); } }));
     }
 
     function renderPayments(proj) {
@@ -800,16 +807,17 @@
         html += `<div class="item-row">
         <div>${formatMoney(p.amount)} from ${client?.name || 'Unknown'} on ${p.date}</div>
         <div class="item-actions">
-          <button class="edit-payment-btn btn-sm btn-warning" data-id="${p.id}">✏️</button>
-          <button class="delete-payment-btn btn-sm btn-outline" data-id="${p.id}">✖</button>
+          <button class="edit-payment-btn btn-sm btn-edit" data-id="${p.id}">✏️ EDIT</button>
+          <button class="delete-payment-btn btn-sm btn-outline" data-id="${p.id}">🗑️ DELETE</button>
         </div>
       </div>`;
       });
       document.getElementById('paymentHistory').innerHTML = html;
       document.querySelectorAll('.edit-payment-btn').forEach(btn => btn.addEventListener('click', () => editPayment(proj, btn.dataset.id)));
-      document.querySelectorAll('.delete-payment-btn').forEach(btn => btn.addEventListener('click', () => { proj.payments = proj.payments.filter(p => p.id !== btn.dataset.id); save(); renderProjectView(proj.id); }));
+      document.querySelectorAll('.delete-payment-btn').forEach(btn => btn.addEventListener('click', () => { if (confirm('Delete this payment record?')) { proj.payments = proj.payments.filter(p => p.id !== btn.dataset.id); save(); renderProjectView(proj.id); } }));
     }
 
+    // Event delegation for Add buttons
     function setupEventDelegation() {
       document.body.addEventListener('click', (e) => {
         const proj = projects.find(p => p.id === currentProjectId);
@@ -844,28 +852,22 @@
         if (e.target.id === 'addAdvanceBtn') {
           const wid = document.getElementById('advanceWorkerSelect')?.value;
           const amt = parseFloat(document.getElementById('advanceAmount')?.value);
-          const date = document.getElementById('advanceDate')?.value || new Date().toISOString().slice(0, 10);
+          if (!wid || isNaN(amt)) return alert('Select worker and enter amount');
           const worker = proj.workers?.find(w => w.id === wid);
-          if (worker && !isNaN(amt)) { worker.advances = (worker.advances || 0) + amt; save(); renderProjectView(proj.id); document.getElementById('advanceAmount').value = ''; }
-          else alert('Select worker and enter amount');
+          if (worker) { worker.advances = (worker.advances || 0) + amt; save(); renderProjectView(proj.id); document.getElementById('advanceAmount').value = ''; }
         }
         if (e.target.id === 'addHoursBtn') {
           const wid = document.getElementById('hoursWorkerSelect')?.value;
           const hrs = parseFloat(document.getElementById('hoursWorked')?.value);
-          const date = document.getElementById('hoursDate')?.value || new Date().toISOString().slice(0, 10);
+          if (!wid || isNaN(hrs) || hrs <= 0) return alert('Select worker and enter valid hours');
           const worker = proj.workers?.find(w => w.id === wid);
-          if (worker && !isNaN(hrs) && hrs > 0) {
-            worker.totalHours = (worker.totalHours || 0) + hrs;
-            worker.totalHoursWage = (worker.totalHours * worker.rate);
-            save(); renderProjectView(proj.id);
-            document.getElementById('hoursWorked').value = '';
-          } else alert('Select worker and enter valid hours');
+          if (worker) { worker.totalHours = (worker.totalHours || 0) + hrs; worker.totalHoursWage = (worker.totalHours * worker.rate); save(); renderProjectView(proj.id); document.getElementById('hoursWorked').value = ''; }
         }
         if (e.target.id === 'addClientBtn') {
           const name = document.getElementById('clientName')?.value;
+          if (!name) return alert('Client name required');
           const contact = document.getElementById('clientContact')?.value;
           const address = document.getElementById('clientAddress')?.value;
-          if (!name) return alert('Client name required');
           proj.clients.push({ id: uid(), name, contact, address });
           save(); renderProjectView(proj.id);
           document.getElementById('clientName').value = '';
@@ -875,8 +877,8 @@
         if (e.target.id === 'addPaymentBtn') {
           const cid = document.getElementById('paymentClientSelect')?.value;
           const amt = parseFloat(document.getElementById('paymentAmount')?.value);
-          const date = document.getElementById('paymentDate')?.value || new Date().toISOString().slice(0, 10);
           if (!cid || isNaN(amt)) return alert('Select client and enter amount');
+          const date = document.getElementById('paymentDate')?.value || new Date().toISOString().slice(0, 10);
           proj.payments.push({ id: uid(), clientId: cid, amount: amt, date });
           save(); renderProjectView(proj.id);
           document.getElementById('paymentAmount').value = '';
@@ -893,24 +895,22 @@
         if (e.target.id === 'addNoteBtn') {
           const title = document.getElementById('newNoteTitle')?.value;
           const content = document.getElementById('newNoteContent')?.value;
-          if (title) {
-            const newNoteId = uid();
-            proj.notes.push({ id: newNoteId, title, content });
-            noteExpandStates[newNoteId] = false;
-            save(); renderProjectView(proj.id);
-            document.getElementById('newNoteTitle').value = '';
-            document.getElementById('newNoteContent').value = '';
-          } else alert('Enter a note title');
+          if (!title) return alert('Enter a note title');
+          const newNoteId = uid();
+          proj.notes.push({ id: newNoteId, title, content });
+          noteExpandStates[newNoteId] = false;
+          save(); renderProjectView(proj.id);
+          document.getElementById('newNoteTitle').value = '';
+          document.getElementById('newNoteContent').value = '';
         }
         if (e.target.id === 'addDocBtn') {
           const title = document.getElementById('newDocTitle')?.value;
           const link = document.getElementById('newDocLink')?.value;
-          if (title && link) {
-            proj.documents.push({ id: uid(), title, link });
-            save(); renderProjectView(proj.id);
-            document.getElementById('newDocTitle').value = '';
-            document.getElementById('newDocLink').value = '';
-          } else alert('Enter both title and link');
+          if (!title || !link) return alert('Enter both title and link');
+          proj.documents.push({ id: uid(), title, link });
+          save(); renderProjectView(proj.id);
+          document.getElementById('newDocTitle').value = '';
+          document.getElementById('newDocLink').value = '';
         }
         if (e.target.id === 'exportProjectBtn') {
           let csv = "Type,Category/Title,Description/Link,Amount,Date\n";
@@ -931,7 +931,7 @@
       setupEventDelegation();
       document.getElementById('addProjectBtn')?.addEventListener('click', () => { let name = document.getElementById('newProjectName')?.value; if (name) { projects.push({ id: uid(), name, expenses: [], workers: [], clients: [], tasks: [], dailyLogs: [], notes: [], documents: [], payments: [], finished: false }); save(); renderDashboard(); document.getElementById('newProjectName').value = ''; } });
       document.getElementById('backToDashboardBtn')?.addEventListener('click', showDashboard);
-      document.getElementById('deleteEntireProjectBtn')?.addEventListener('click', () => { if (currentProjectId && confirm('Delete project?')) { projects = projects.filter(p => p.id !== currentProjectId); save(); showDashboard(); } });
+      document.getElementById('deleteEntireProjectBtn')?.addEventListener('click', () => { if (currentProjectId && confirm('Delete entire project? This cannot be undone.')) { projects = projects.filter(p => p.id !== currentProjectId); save(); showDashboard(); } });
       document.querySelectorAll('.tab-btn').forEach(btn => btn.addEventListener('click', () => { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); document.getElementById(`tab-${btn.dataset.tab}`)?.classList.add('active'); }));
       showDashboard();
     }
