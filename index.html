@@ -3,32 +3,47 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <title>Contractor's Complete Job Management | ZAR</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: system-ui, 'Segoe UI', 'Inter', sans-serif;
+      font-family: system-ui, 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     body {
       background: #e9eef3;
-      padding: 20px;
+      padding: 16px;
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 20px;
+      }
     }
 
     .app-container {
       max-width: 1600px;
       margin: 0 auto;
+      width: 100%;
     }
 
     .card {
       background: white;
       border-radius: 24px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-      padding: 1.5rem;
+      padding: 1rem;
       margin-bottom: 1.5rem;
+      width: 100%;
+      overflow-x: hidden;
+    }
+
+    @media (min-width: 640px) {
+      .card {
+        padding: 1.5rem;
+      }
     }
 
     .dashboard-header,
@@ -37,11 +52,11 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 16px;
+      gap: 12px;
     }
 
     h1 {
-      font-size: 1.8rem;
+      font-size: 1.5rem;
       font-weight: 700;
       background: linear-gradient(135deg, #1e2b3c, #0f3b2c);
       background-clip: text;
@@ -49,8 +64,14 @@
       color: transparent;
     }
 
+    @media (min-width: 640px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+    }
+
     h2 {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       font-weight: 600;
       color: #1e2f3a;
       border-left: 4px solid #2c7a4d;
@@ -59,27 +80,31 @@
     }
 
     h3 {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
       margin: 0.8rem 0 0.5rem 0;
       color: #2c3e44;
-      cursor: pointer;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
     button {
       background: #2c7a4d;
       color: white;
       border: none;
-      padding: 8px 16px;
+      padding: 8px 14px;
       border-radius: 40px;
       font-weight: 500;
       cursor: pointer;
       transition: 0.2s;
       font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 480px) {
+      button {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+        white-space: normal;
+      }
     }
 
     button:hover {
@@ -107,7 +132,7 @@
     }
 
     .btn-sm {
-      padding: 4px 10px;
+      padding: 4px 8px;
       font-size: 0.7rem;
     }
 
@@ -126,6 +151,7 @@
       padding: 1rem;
       border: 1px solid #e2e8f0;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      width: 100%;
     }
 
     .project-grid {
@@ -136,12 +162,15 @@
     }
 
     .project-tile {
-      flex: 1 1 260px;
+      flex: 1 1 280px;
+      min-width: 0;
+      word-wrap: break-word;
     }
 
     .project-tile h4 {
       font-size: 1.2rem;
       font-weight: 700;
+      word-break: break-word;
     }
 
     .total-cost {
@@ -166,14 +195,15 @@
 
     .summary-bar {
       background: #f0fdf4;
-      padding: 14px;
+      padding: 12px;
       border-radius: 20px;
       margin: 12px 0;
+      word-break: break-word;
     }
 
     .tab-bar {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
       border-bottom: 1px solid #e2e8f0;
       padding-bottom: 10px;
@@ -184,6 +214,15 @@
       background: transparent;
       color: #4a5568;
       box-shadow: none;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 550px) {
+      .tab-btn {
+        white-space: normal;
+        font-size: 0.7rem;
+        padding: 5px 10px;
+      }
     }
 
     .tab-btn.active {
@@ -208,6 +247,8 @@
       padding: 12px;
       margin-bottom: 12px;
       border-left: 3px solid #2c7a4d;
+      word-break: break-word;
+      overflow-wrap: break-word;
     }
 
     .inline-form {
@@ -218,6 +259,13 @@
       margin: 12px 0;
     }
 
+    .inline-form input,
+    .inline-form select,
+    .inline-form textarea {
+      flex: 1 1 auto;
+      min-width: 100px;
+    }
+
     input,
     select,
     textarea {
@@ -225,29 +273,48 @@
       border-radius: 32px;
       border: 1px solid #cbd5e1;
       font-size: 0.85rem;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    @media (max-width: 480px) {
+
+      input,
+      select,
+      textarea {
+        font-size: 16px;
+      }
     }
 
     textarea {
       border-radius: 16px;
       width: 100%;
+      resize: vertical;
     }
 
     .item-row {
       background: white;
       border-radius: 12px;
-      padding: 8px 12px;
-      margin: 6px 0;
+      padding: 10px;
+      margin: 8px 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
       border: 1px solid #eef2f6;
+      word-break: break-word;
+    }
+
+    .item-row>div:first-child {
+      flex: 1;
+      min-width: 150px;
     }
 
     .item-actions {
       display: flex;
       gap: 6px;
+      flex-wrap: wrap;
     }
 
     .back-link {
@@ -256,6 +323,7 @@
       border-radius: 40px;
       cursor: pointer;
       font-size: 0.85rem;
+      display: inline-block;
     }
 
     .collapsible-header {
@@ -264,6 +332,7 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
+      gap: 8px;
     }
 
     .collapsible-content {
@@ -282,27 +351,85 @@
       color: #666;
     }
 
+    /* FIX: Document link wrapping */
+    .doc-card {
+      word-break: break-all;
+      overflow-wrap: break-word;
+    }
+
     .doc-link {
       color: #2c7a4d;
       text-decoration: none;
       font-weight: 500;
+      display: inline-block;
+      word-break: break-all;
+      overflow-wrap: break-word;
+      max-width: 100%;
     }
 
     .doc-link:hover {
       text-decoration: underline;
     }
 
-    @media (max-width: 640px) {
-      body {
-        padding: 12px;
-      }
+    /* Fix for long text in expense items */
+    .item-row small {
+      display: block;
+      word-break: break-word;
+    }
 
-      .card {
-        padding: 1rem;
+    /* Mobile-specific improvements */
+    @media (max-width: 550px) {
+      .item-row {
+        flex-direction: column;
+        align-items: flex-start;
       }
 
       .item-actions {
-        margin-top: 6px;
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .inline-form {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .inline-form button {
+        width: 100%;
+      }
+
+      .worker-card .item-actions,
+      .client-card .item-actions {
+        flex-wrap: wrap;
+      }
+
+      .tab-bar {
+        justify-content: center;
+      }
+
+      .flex-between {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .flex-between button {
+        width: 100%;
+      }
+    }
+
+    /* Fix for very small screens */
+    @media (max-width: 380px) {
+      body {
+        padding: 10px;
+      }
+
+      .card {
+        padding: 0.75rem;
+      }
+
+      .btn-sm {
+        padding: 4px 6px;
+        font-size: 0.65rem;
       }
     }
   </style>
@@ -563,7 +690,7 @@
       renderPayments(proj);
     }
 
-    // EDIT FUNCTIONS - each opens a prompt for easy editing
+    // EDIT FUNCTIONS
     function editExpense(proj, expId) {
       const exp = proj.expenses.find(e => e.id === expId);
       if (!exp) return;
@@ -652,7 +779,7 @@
       save(); renderProjectView(proj.id);
     }
 
-    // RENDER FUNCTIONS with visible EDIT buttons
+    // RENDER FUNCTIONS
     function renderExpenses(proj) {
       let html = '';
       const search = document.getElementById('expenseSearch')?.value.toLowerCase() || '';
@@ -761,7 +888,7 @@
           <span class="collapse-icon note-icon" data-note-id="${note.id}">${iconSymbol}</span>
         </div>
         <div class="collapsible-content note-content" data-note-id="${note.id}" style="display: ${isExpanded ? 'block' : 'none'};">
-          <p style="margin-bottom:8px;">${escapeHtml(note.content)}</p>
+          <p style="margin-bottom:8px; word-break:break-word;">${escapeHtml(note.content)}</p>
           <div class="item-actions">
             <button class="edit-note-btn btn-sm btn-edit" data-id="${note.id}">✏️ EDIT</button>
             <button class="delete-note-btn btn-sm btn-outline" data-id="${note.id}">🗑️ DELETE</button>
@@ -787,7 +914,7 @@
       proj.documents?.forEach(doc => {
         html += `<div class="doc-card">
         <div><strong>📄 ${escapeHtml(doc.title)}</strong></div>
-        <div><a href="${escapeHtml(doc.link)}" target="_blank" class="doc-link">🔗 ${escapeHtml(doc.link)}</a></div>
+        <div style="word-break: break-all; overflow-wrap: break-word;"><a href="${escapeHtml(doc.link)}" target="_blank" class="doc-link" rel="noopener noreferrer">🔗 ${escapeHtml(doc.link)}</a></div>
         <div class="item-actions" style="margin-top:8px;">
           <button class="edit-doc-btn btn-sm btn-edit" data-id="${doc.id}">✏️ EDIT</button>
           <button class="delete-doc-btn btn-sm btn-outline" data-id="${doc.id}">🗑️ DELETE</button>
@@ -817,7 +944,6 @@
       document.querySelectorAll('.delete-payment-btn').forEach(btn => btn.addEventListener('click', () => { if (confirm('Delete this payment record?')) { proj.payments = proj.payments.filter(p => p.id !== btn.dataset.id); save(); renderProjectView(proj.id); } }));
     }
 
-    // Event delegation for Add buttons
     function setupEventDelegation() {
       document.body.addEventListener('click', (e) => {
         const proj = projects.find(p => p.id === currentProjectId);
